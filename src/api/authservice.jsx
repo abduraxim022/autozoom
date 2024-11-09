@@ -16,7 +16,6 @@ export const login = async (username, password) => {
       throw new Error("Token not found in response");
     }
   } catch (error) {
-    const errorMessage = error.response ? error.response.data : error.message;
     throw errorMessage;
   }
 };

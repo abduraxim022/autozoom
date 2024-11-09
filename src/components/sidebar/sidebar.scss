@@ -1,5 +1,5 @@
 .sidebar {
-    width: 20px;
+    
     background-color: #0a1929;
     color: #fff;
     height: 100vh;
@@ -48,7 +48,7 @@
       }
     }
   }
-  /* sidebar.scss */
+
 
 .sidebar {
   width: 240px;
@@ -77,14 +77,14 @@
     background-color: #444;
   }
 
-  /* Active link styling */
+
   &.active {
-    background-color: #08124b; /* Active background color */
+    background-color: #08124b; 
     color: #fff;
 
     .sidebar-menu-icon,
     .sidebar-menu-text {
-      color: #ffcc00; /* Active text and icon color */
+      color: #ffcc00; 
     }
   }
 }

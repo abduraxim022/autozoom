@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../api/axiosconfig';
-import { toast } from 'react-toastify';
-import './cities.scss'
+import React, { useEffect, useState } from "react";
+import api from "../../api/axiosconfig";
+import { toast } from "react-toastify";
+import "./cities.scss";
 
 export default function Cities() {
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [cityName, setCityName] = useState('');
-  const [cityText, setCityText] = useState('');
+  const [cityName, setCityName] = useState("");
+  const [cityText, setCityText] = useState("");
   const [cityImage, setCityImage] = useState(null);
   const [selectedCityId, setSelectedCityId] = useState(null);
 
   const fetchCities = async () => {
     try {
-      const response = await api.get('/cities');
+      const response = await api.get("/cities");
       setCities(response.data.data);
     } catch (error) {
       console.error("Error fetching cities:", error);
@@ -31,8 +31,8 @@ export default function Cities() {
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
     setEditMode(false);
-    setCityName('');
-    setCityText('');
+    setCityName("");
+    setCityText("");
     setCityImage(null);
     setSelectedCityId(null);
   };
@@ -44,31 +44,31 @@ export default function Cities() {
     }
 
     const formData = new FormData();
-    formData.append('name', cityName);
-    formData.append('text', cityText);
-    if (cityImage) formData.append('images', cityImage);
+    formData.append("name", cityName);
+    formData.append("text", cityText);
+    if (cityImage) formData.append("images", cityImage);
 
     try {
       let response;
       if (editMode && selectedCityId) {
         response = await api.put(`/cities/${selectedCityId}`, formData, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
       } else {
-        response = await api.post('/cities', formData, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        response = await api.post("/cities", formData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
       }
 
       if (response.status === 200 || response.status === 201) {
-        toast.success(editMode ? 'Shahar tahrirlandi!' : 'Shahar qo\'shildi!');
+        toast.success(editMode ? "Shahar tahrirlandi!" : "Shahar qo'shildi!");
         fetchCities();
         toggleModal();
       } else {
-        toast.error('So\'rovda xatolik yuz berdi.');
+        toast.error("So'rovda xatolik yuz berdi.");
       }
     } catch (error) {
-      toast.error('API so\'rovda xatolik yuz berdi.');
+      toast.error("API so'rovda xatolik yuz berdi.");
     }
   };
 
@@ -83,12 +83,14 @@ export default function Cities() {
   const handleDeleteCity = async (id) => {
     try {
       await api.delete(`/cities/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
-      toast.success('Shahar o\'chirildi!');
+      toast.success("Shahar o'chirildi!");
       fetchCities();
     } catch (error) {
-      toast.error('Shaharni o\'chirishda xatolik yuz berdi.');
+      toast.error("Shaharni o'chirishda xatolik yuz berdi.");
     }
   };
 
@@ -103,7 +105,9 @@ export default function Cities() {
   return (
     <div className="cities-container">
       <h2>Cities</h2>
-      <button onClick={toggleModal} className="add-city-button">Add City</button>
+      <button onClick={toggleModal} className="add-city-button">
+        Add City
+      </button>
 
       <table className="cities-table">
         <thead>
@@ -120,11 +124,17 @@ export default function Cities() {
               <td>{city.name}</td>
               <td>{city.text}</td>
               <td>
-                <img src={`	https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city?.image_src}`} alt={city.name} width="100" />
+                <img
+                  src={`	https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city?.image_src}`}
+                  alt={city.name}
+                  width="100"
+                />
               </td>
               <td>
                 <button onClick={() => handleEditCity(city)}>Edit</button>
-                <button onClick={() => handleDeleteCity(city.id)}>Delete</button>
+                <button onClick={() => handleDeleteCity(city.id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -135,7 +145,7 @@ export default function Cities() {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>{editMode ? 'Edit City' : 'Add City'}</h3>
+            <h3>{editMode ? "Edit City" : "Add City"}</h3>
             <input
               type="text"
               placeholder="City Name"
@@ -149,7 +159,7 @@ export default function Cities() {
             />
             <input type="file" accept="image/*" onChange={handleImageChange} />
             <button onClick={handleAddOrEditCity}>
-              {editMode ? 'Save Changes' : 'Add City'}
+              {editMode ? "Save Changes" : "Add City"}
             </button>
             <button onClick={toggleModal}>Cancel</button>
           </div>

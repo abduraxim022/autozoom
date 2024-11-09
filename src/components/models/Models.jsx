@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import api from '../../api/axiosconfig';
-import { toast } from 'react-toastify';
-import './models.scss';
+import React, { useEffect, useState } from "react";
+import api from "../../api/axiosconfig";
+import { toast } from "react-toastify";
+import "./models.scss";
 
 export default function Models() {
   const [models, setModels] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modelName, setModelName] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState('');
+  const [modelName, setModelName] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
   const [editModelId, setEditModelId] = useState(null);
 
   const fetchModels = async () => {
     try {
-      const response = await api.get('/models');
+      const response = await api.get("/models");
       setModels(response.data.data);
     } catch (error) {
       console.error("Error fetching models:", error);
@@ -25,7 +25,7 @@ export default function Models() {
 
   const fetchBrands = async () => {
     try {
-      const response = await api.get('/brands');
+      const response = await api.get("/brands");
       setBrands(response.data.data);
     } catch (error) {
       console.error("Error fetching brands:", error);
@@ -39,8 +39,8 @@ export default function Models() {
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
-    setModelName('');
-    setSelectedBrand('');
+    setModelName("");
+    setSelectedBrand("");
     setEditModelId(null);
   };
 
@@ -55,19 +55,23 @@ export default function Models() {
     try {
       if (editModelId) {
         await api.put(`/models/${editModelId}`, data, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         });
-        toast.success('Model updated successfully!');
+        toast.success("Model updated successfully!");
       } else {
-        await api.post('/models', data, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+        await api.post("/models", data, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         });
-        toast.success('Model added successfully!');
+        toast.success("Model added successfully!");
       }
       fetchModels();
       toggleModal();
     } catch (error) {
-      toast.error('Error with API request.');
+      toast.error("Error with API request.");
     }
   };
 
@@ -83,12 +87,14 @@ export default function Models() {
 
     try {
       await api.delete(`/models/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
-      toast.success('Model deleted successfully!');
+      toast.success("Model deleted successfully!");
       fetchModels();
     } catch (error) {
-      toast.error('Error deleting model.');
+      toast.error("Error deleting model.");
     }
   };
 
@@ -99,7 +105,9 @@ export default function Models() {
   return (
     <div className="models-container">
       <h2>Models</h2>
-      <button onClick={toggleModal} className="add-model-button">Add Model</button>
+      <button onClick={toggleModal} className="add-model-button">
+        Add Model
+      </button>
 
       <table className="models-table">
         <thead>
@@ -115,8 +123,18 @@ export default function Models() {
               <td>{model.name}</td>
               <td>{model?.brand_title}</td>
               <td>
-                <button onClick={() => handleEditClick(model)} className="edit-button">Edit</button>
-                <button onClick={() => handleDeleteModel(model.id)} className="delete-button">Delete</button>
+                <button
+                  onClick={() => handleEditClick(model)}
+                  className="edit-button"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteModel(model.id)}
+                  className="delete-button"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
@@ -126,7 +144,7 @@ export default function Models() {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>{editModelId ? 'Edit Model' : 'Add New Model'}</h3>
+            <h3>{editModelId ? "Edit Model" : "Add New Model"}</h3>
             <input
               type="text"
               placeholder="Model Name"
@@ -144,7 +162,9 @@ export default function Models() {
                 </option>
               ))}
             </select>
-            <button onClick={handleAddOrEditModel}>{editModelId ? 'Update' : 'Add'}</button>
+            <button onClick={handleAddOrEditModel}>
+              {editModelId ? "Update" : "Add"}
+            </button>
             <button onClick={toggleModal}>Cancel</button>
           </div>
         </div>
