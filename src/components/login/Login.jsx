@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { login } from "../../api/authservice";
 import "./login.scss";
-import { toast } from "react-toastify";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -15,21 +15,19 @@ function Login() {
     if (token) {
       navigate("/dashboard");
     }
-  });
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const { data } = await login(username, password);
-      
-      toast.success("Login successful!");
-      navigate("/dashboard");
-    } catch (err) {
-      const errorMessage = err?.response?.data?.message || "Login failed";
-      toast.error(errorMessage);
-      setError(errorMessage);
+      const { message } = await login(username, password);
+      toast.success(message); 
+      navigate("/dashboard");  
+    } catch (error) {
+      setError(error);  
+      toast.error(error);  
     }
   };
 

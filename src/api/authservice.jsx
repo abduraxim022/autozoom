@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import api from "./axiosconfig";
 
 export const login = async (username, password) => {
@@ -7,15 +8,16 @@ export const login = async (username, password) => {
       password: password,
     });
     const token = response?.data?.data?.tokens?.accessToken?.token;
+    const message = response?.data?.message
+
 
     if (token) {
       localStorage.setItem("authToken", token);
-
-      return `Bearer ${token}`;
+      return { token: `Bearer ${token}`, message };
     } else {
       throw new Error("Token not found in response");
     }
   } catch (error) {
-    throw errorMessage;
+    throw error.response?.data?.message || "An error occurred during login.";
   }
 };
