@@ -1,0 +1,98 @@
+.sidebar {
+    width: 20px;
+    background-color: #0a1929;
+    color: #fff;
+    height: 100vh;
+    transition: width 0.3s ease;
+    overflow: hidden;
+  
+    &.collapsed {
+      width: 60px;
+    }
+  
+    .sidebar-toggle-button {
+      color: #ffffff;
+      margin: 10px;
+    }
+  
+    .sidebar-menu-list {
+      padding: 0;
+    }
+  
+    .sidebar-menu-item {
+      display: flex;
+      align-items: center;
+  
+      .sidebar-menu-button {
+        width: 100%;
+        text-align: left;
+        transition: background-color 0.2s ease;
+  
+        &.active {
+          background-color: #1e88e5;
+          color: #ffffff;
+        }
+  
+        &:hover {
+          background-color: #1565c0;
+          color: #ffffff;
+        }
+  
+        .sidebar-menu-icon {
+          color: #ffffff;
+        }
+      }
+  
+      .sidebar-menu-text {
+        color: #b0bec5;
+      }
+    }
+  }
+  /* sidebar.scss */
+
+.sidebar {
+  width: 240px;
+  background-color: #333;
+  color: #fff;
+  transition: width 0.3s;
+  overflow: hidden;
+
+  &.collapsed {
+    width: 80px;
+  }
+}
+
+.sidebar-toggle-button {
+  color: #fff;
+}
+
+.sidebar-menu-list {
+  padding: 0;
+}
+
+.sidebar-menu-button {
+  color: #ccc;
+
+  &:hover {
+    background-color: #444;
+  }
+
+  /* Active link styling */
+  &.active {
+    background-color: #08124b; /* Active background color */
+    color: #fff;
+
+    .sidebar-menu-icon,
+    .sidebar-menu-text {
+      color: #ffcc00; /* Active text and icon color */
+    }
+  }
+}
+
+.sidebar-menu-icon {
+  min-width: 40px;
+}
+
+.sidebar-menu-text {
+  font-size: 16px;
+}

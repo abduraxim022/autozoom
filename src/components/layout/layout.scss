@@ -1,0 +1,29 @@
+// Layout.scss
+.layout-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .sidebar {
+    width: 200px;
+    transition: width 0.3s ease;
+    background-color: #0a1929;
+    color: #fff;
+  }
+  
+  .sidebar.collapsed {
+    width: 60px;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding-left: 200px;
+    transition: padding-left 0.3s ease;
+  }
+
+
+  .layout-content{
+    width: 100%;
+  }
+  
