@@ -14,7 +14,7 @@ import NotFound from '../components/notfound/Notfound';
 export default function RouteController() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />  
+      <Route path="/" element={<Login />} />  
       <Route element={<PrivateRoute />}>
         <Route element={<Layout />}>
           <Route path="/categories" element={<Categories />} />
