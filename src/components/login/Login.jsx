@@ -8,32 +8,38 @@ function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      navigate("/dashboard");
+      navigate("/categories");
     }
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true); 
 
     try {
       const { message } = await login(username, password);
-      toast.success(message); 
-      navigate("/dashboard");  
+      toast.success(message);
+      navigate("/categories");
     } catch (error) {
-      setError(error);  
-      toast.error(error);  
+      setError(error);
+      toast.error(error);
+    } finally {
+      setLoading(false); 
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
+      <div className="login-header">
+        <h2>AutoZoom</h2>
+      </div>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Username</label>
@@ -53,8 +59,13 @@ function Login() {
             required
           />
         </div>
-        <button type="submit">Login</button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        <button type="submit" className={loading ? "loading" : ""}>
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+            "Login"
+          )}
+        </button>
       </form>
     </div>
   );

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
+import { IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./models.scss";
 
 export default function Models() {
@@ -11,6 +14,8 @@ export default function Models() {
   const [modelName, setModelName] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [editModelId, setEditModelId] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteModelId, setDeleteModelId] = useState(null);
 
   const fetchModels = async () => {
     try {
@@ -82,29 +87,28 @@ export default function Models() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteModel = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this model?")) return;
+  const handleDeleteClick = (id) => {
+    setDeleteModelId(id);
+    setDeleteDialogOpen(true);
+  };
 
+  const handleDeleteModel = async () => {
     try {
-      await api.delete(`/models/${id}`, {
+      await api.delete(`/models/${deleteModelId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
       toast.success("Model deleted successfully!");
       fetchModels();
+      setDeleteDialogOpen(false);
     } catch (error) {
       toast.error("Error deleting model.");
     }
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <div className="models-container">
-      <h2>Models</h2>
       <button onClick={toggleModal} className="add-model-button">
         Add Model
       </button>
@@ -123,18 +127,12 @@ export default function Models() {
               <td>{model.name}</td>
               <td>{model?.brand_title}</td>
               <td>
-                <button
-                  onClick={() => handleEditClick(model)}
-                  className="edit-button"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteModel(model.id)}
-                  className="delete-button"
-                >
-                  Delete
-                </button>
+                <IconButton onClick={() => handleEditClick(model)} color="primary">
+                  <EditIcon />
+                </IconButton>
+                <IconButton onClick={() => handleDeleteClick(model.id)} color="error">
+                  <DeleteIcon />
+                </IconButton>
               </td>
             </tr>
           ))}
@@ -169,6 +167,21 @@ export default function Models() {
           </div>
         </div>
       )}
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Confirmation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this model?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteModel} color="secondary">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

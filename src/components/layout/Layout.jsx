@@ -16,7 +16,7 @@ const Layout = () => {
       <Sidebar isOpen={isSidebarOpen} onToggle={handleToggleSidebar} />
       <div
         className="layout-content"
-        style={{ marginLeft: isSidebarOpen ? "20px" : "20px" }}
+        
       >
         <Navbar isSidebarOpen={isSidebarOpen} />
         <div className="navbar-spacing">

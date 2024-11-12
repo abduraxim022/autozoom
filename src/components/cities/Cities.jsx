@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
 import "./cities.scss";
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 
 export default function Cities() {
   const [cities, setCities] = useState([]);
@@ -13,6 +17,7 @@ export default function Cities() {
   const [cityImage, setCityImage] = useState(null);
   const [selectedCityId, setSelectedCityId] = useState(null);
 
+  // Shaharlarni olish funksiyasi
   const fetchCities = async () => {
     try {
       const response = await api.get("/cities");
@@ -104,44 +109,49 @@ export default function Cities() {
 
   return (
     <div className="cities-container">
-      <h2>Cities</h2>
+      <h2>Cities List</h2>
       <button onClick={toggleModal} className="add-city-button">
         Add City
       </button>
 
-      <table className="cities-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Text</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cities.map((city) => (
-            <tr key={city?.id}>
-              <td>{city.name}</td>
-              <td>{city.text}</td>
-              <td>
-                <img
-                  src={`	https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city?.image_src}`}
-                  alt={city.name}
-                  width="100"
-                />
-              </td>
-              <td>
-                <button onClick={() => handleEditCity(city)}>Edit</button>
-                <button onClick={() => handleDeleteCity(city.id)}>
-                  Delete
-                </button>
-              </td>
+      <div className="cities-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Image</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cities.map((city, index) => (
+              <tr key={city.id}>
+                <td>{index + 1}</td>
+                <td>{city.name}</td>
+                <td>{city.text}</td>
+                <td>
+                  <img
+                    src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city?.image_src}`}
+                    alt={city.name}
+                    width="80"
+                  />
+                </td>
+                <td>
+                <IconButton onClick={() => handleEditBrand(city.id)}>
+                    <EditIcon color="primary" />
+                  </IconButton>
+                  <IconButton onClick={() => handleOpenAlert(city.id)}>
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -153,7 +163,7 @@ export default function Cities() {
               onChange={(e) => setCityName(e.target.value)}
             />
             <textarea
-              placeholder="City Text"
+              placeholder="City Description"
               value={cityText}
               onChange={(e) => setCityText(e.target.value)}
             />

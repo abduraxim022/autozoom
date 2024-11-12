@@ -1,11 +1,16 @@
-
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import {  Outlet, } from 'react-router-dom';
+import Notlogin from '../notlogin/Notlogin';
+
 
 const PrivateRoute = () => {
   const token = localStorage.getItem("authToken"); 
 
-  return token ? <Outlet /> : <Navigate to="/login" />;
+  return token ? (
+    <Outlet /> 
+  ) : (
+    <Notlogin /> 
+  );
 };
 
 export default PrivateRoute;

@@ -6,7 +6,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
-import HomeIcon from "@mui/icons-material/Home";
 import SettingsIcon from "@mui/icons-material/Settings";
 import StoreIcon from "@mui/icons-material/Store";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -19,8 +18,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
 
   const menuItems = [
-    { text: "Dashboard", icon: <HomeIcon />, path: "/dashboard" },
-    { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
+    { text: "Categories", icon: <SettingsIcon />, path: "/categories" },
     { text: "Brands", icon: <StoreIcon />, path: "/brands" },
     { text: "Models", icon: <DirectionsCarIcon />, path: "/models" },
     { text: "Locations", icon: <LocationCityIcon />, path: "/locations" },

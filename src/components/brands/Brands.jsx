@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, IconButton, Skeleton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "./brands.scss";
 
 export default function Brands() {
@@ -11,6 +14,8 @@ export default function Brands() {
   const [brandImage, setBrandImage] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [selectedBrandId, setSelectedBrandId] = useState(null);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [brandToDelete, setBrandToDelete] = useState(null);
 
   const fetchBrands = async () => {
     try {
@@ -86,18 +91,26 @@ export default function Brands() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteBrand = async (id) => {
-    if (!window.confirm("Haqiqatan ham ushbu brendni o'chirishni xohlaysizmi?"))
-      return;
+  const handleOpenAlert = (id) => {
+    setBrandToDelete(id);
+    setOpenAlert(true);
+  };
 
+  const handleCloseAlert = () => {
+    setOpenAlert(false);
+    setBrandToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await api.delete(`/brands/${id}`, {
+      await api.delete(`/brands/${brandToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
       toast.success("Brend o'chirildi!");
       fetchBrands();
+      handleCloseAlert();
     } catch (error) {
       toast.error("Brendni o'chirishda xatolik yuz berdi.");
     }
@@ -117,7 +130,11 @@ export default function Brands() {
       </button>
 
       {loading ? (
-        <p>Yuklanmoqda...</p>
+        <div className="skeleton-table">
+          <Skeleton variant="text" width="100%" height={40} />
+          <Skeleton variant="text" width="100%" height={40} />
+          <Skeleton variant="text" width="100%" height={40} />
+        </div>
       ) : (
         <table className="brands-table">
           <thead>
@@ -141,12 +158,12 @@ export default function Brands() {
                   />
                 </td>
                 <td>
-                  <button onClick={() => handleEditBrand(brand)}>
-                    Tahrirlash
-                  </button>
-                  <button onClick={() => handleDeleteBrand(brand.id)}>
-                    O'chirish
-                  </button>
+                  <IconButton onClick={() => handleEditBrand(brand)}>
+                    <EditIcon color="primary" />
+                  </IconButton>
+                  <IconButton onClick={() => handleOpenAlert(brand.id)}>
+                    <DeleteIcon color="error" />
+                  </IconButton>
                 </td>
               </tr>
             ))}
@@ -154,7 +171,6 @@ export default function Brands() {
         </table>
       )}
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -173,6 +189,23 @@ export default function Brands() {
           </div>
         </div>
       )}
+
+      <Dialog open={openAlert} onClose={handleCloseAlert}>
+        <DialogTitle>Brendni o'chirish</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Haqiqatan ham ushbu brendni o'chirishni xohlaysizmi?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAlert} color="primary">
+            Bekor qilish
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" autoFocus>
+            O'chirish
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
