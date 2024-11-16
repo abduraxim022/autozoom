@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import { FiImage } from "react-icons/fi";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
 import "./cities.scss";
-import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 
 export default function Cities() {
   const [cities, setCities] = useState([]);
@@ -15,15 +15,19 @@ export default function Cities() {
   const [cityName, setCityName] = useState("");
   const [cityText, setCityText] = useState("");
   const [cityImage, setCityImage] = useState(null);
+  const [cityImagePreview, setCityImagePreview] = useState(null);
   const [selectedCityId, setSelectedCityId] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [cityToDelete, setCityToDelete] = useState(null);
 
-  // Shaharlarni olish funksiyasi
   const fetchCities = async () => {
+    setLoading(true);
     try {
       const response = await api.get("/cities");
       setCities(response.data.data);
     } catch (error) {
       console.error("Error fetching cities:", error);
+      toast.error("Error fetching cities");
     } finally {
       setLoading(false);
     }
@@ -33,18 +37,38 @@ export default function Cities() {
     fetchCities();
   }, []);
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+  const ImageBaseUrl = "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
+
+  const handleOpenModal = (city = null) => {
+    setIsModalOpen(true);
+    if (city) {
+      setEditMode(true);
+      setCityName(city.name);
+      setCityText(city.text);
+      setSelectedCityId(city.id);
+      setCityImagePreview(`${ImageBaseUrl}/${city?.image_src}`);
+    } else {
+      resetModal();
+    }
+  };
+
+  const resetModal = () => {
     setEditMode(false);
     setCityName("");
     setCityText("");
     setCityImage(null);
+    setCityImagePreview(null);
     setSelectedCityId(null);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    resetModal();
   };
 
   const handleAddOrEditCity = async () => {
     if (!cityName || !cityText) {
-      toast.error("Iltimos, barcha maydonlarni to'ldiring.");
+      toast.warning("Please fill in all fields.");
       return;
     }
 
@@ -54,103 +78,106 @@ export default function Cities() {
     if (cityImage) formData.append("images", cityImage);
 
     try {
-      let response;
       if (editMode && selectedCityId) {
-        response = await api.put(`/cities/${selectedCityId}`, formData, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        await api.put(`/cities/${selectedCityId}`, formData);
+        toast.success("City updated successfully!");
       } else {
-        response = await api.post("/cities", formData, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        await api.post("/cities", formData);
+        toast.success("City added successfully!");
       }
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success(editMode ? "Shahar tahrirlandi!" : "Shahar qo'shildi!");
-        fetchCities();
-        toggleModal();
-      } else {
-        toast.error("So'rovda xatolik yuz berdi.");
-      }
-    } catch (error) {
-      toast.error("API so'rovda xatolik yuz berdi.");
-    }
-  };
-
-  const handleEditCity = (city) => {
-    setEditMode(true);
-    setCityName(city.name);
-    setCityText(city.text);
-    setSelectedCityId(city.id);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteCity = async (id) => {
-    try {
-      await api.delete(`/cities/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      toast.success("Shahar o'chirildi!");
       fetchCities();
+      handleCloseModal();
     } catch (error) {
-      toast.error("Shaharni o'chirishda xatolik yuz berdi.");
+      toast.error("An error occurred while processing the request.");
     }
   };
 
   const handleImageChange = (e) => {
-    setCityImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setCityImage(file);
+      setCityImagePreview(URL.createObjectURL(file));
+    } else {
+      setCityImage(null);
+      setCityImagePreview(null);
+    }
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+  const handleOpenDeleteDialog = (cityId) => {
+    setOpenDeleteDialog(true);
+    setCityToDelete(cityId);
+  };
+
+  const handleDeleteDialogClose = () => {
+    setOpenDeleteDialog(false);
+    setCityToDelete(null);
+  };
+
+  const handleDeleteLocation = async () => {
+    try {
+      if (cityToDelete) {
+        await api.delete(`/cities/${cityToDelete}`);
+        toast.success("City deleted successfully!");
+        fetchCities();
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting the city.");
+    } finally {
+      handleDeleteDialogClose();
+    }
+  };
 
   return (
     <div className="cities-container">
-      <h2>Cities List</h2>
-      <button onClick={toggleModal} className="add-city-button">
+      <button  className="add-location-button"
+        onClick={() => handleOpenModal()}
+      >
         Add City
       </button>
 
-      <div className="cities-table">
-        <table>
+      {loading ? (
+        <div className="loading-container">
+        </div>
+      ) : (
+        <table className="cities-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Name</th>
+              <th>City Name</th>
               <th>Description</th>
               <th>Image</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {cities.map((city, index) => (
+            {cities.map((city) => (
               <tr key={city.id}>
-                <td>{index + 1}</td>
                 <td>{city.name}</td>
                 <td>{city.text}</td>
                 <td>
                   <img
-                    src={`https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/${city?.image_src}`}
+                    src={`${ImageBaseUrl}/${city.image_src}`}
                     alt={city.name}
-                    width="80"
+                    className="city-image"
+                    style={{
+                      width: "100px",
+                      height: "70px",
+                      objectFit: "cover",
+                    }}
                   />
                 </td>
                 <td>
-                <IconButton onClick={() => handleEditBrand(city.id)}>
-                    <EditIcon color="primary" />
+                  <IconButton onClick={() => handleOpenModal(city)}> 
+                    <EditIcon variant="contained" color="primary"/>
                   </IconButton>
-                  <IconButton onClick={() => handleOpenAlert(city.id)}>
-                    <DeleteIcon color="error" />
+                  <IconButton onClick={()=> handleOpenDeleteDialog(city.id)}>
+                    <DeleteIcon variant="contained" color="error"/>
                   </IconButton>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
+      )}
 
       {isModalOpen && (
         <div className="modal-overlay">
@@ -158,23 +185,74 @@ export default function Cities() {
             <h3>{editMode ? "Edit City" : "Add City"}</h3>
             <input
               type="text"
-              placeholder="City Name"
+              placeholder="Enter city name"
               value={cityName}
               onChange={(e) => setCityName(e.target.value)}
             />
             <textarea
-              placeholder="City Description"
+              placeholder="Enter city description"
               value={cityText}
               onChange={(e) => setCityText(e.target.value)}
             />
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            <button onClick={handleAddOrEditCity}>
-              {editMode ? "Save Changes" : "Add City"}
-            </button>
-            <button onClick={toggleModal}>Cancel</button>
+            <div className="image-upload-container">
+              <div className="upload-image">
+                {cityImagePreview ? (
+                  <img
+                    src={cityImagePreview}
+                    alt="preview"
+                    className="image-preview"
+                  />
+                ) : (
+                  <div className="upload-placeholder">
+                    <FiImage />
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="file-input"
+                />
+              </div>
+            </div>
+            <div className="cities-muibuttons">
+              <Button variant="contained" color="primary" onClick={handleCloseModal}>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleAddOrEditCity}
+              >
+                {editMode ? "Save" : "Add City"}
+              </Button>
+            </div>
           </div>
         </div>
       )}
+
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <p>Are you sure you want to delete this city?</p>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleDeleteDialogClose}
+            variant="contained"
+            color="primary"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteLocation}
+            variant="contained"
+            color="error"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

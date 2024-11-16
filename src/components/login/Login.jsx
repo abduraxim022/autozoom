@@ -29,7 +29,7 @@ function Login() {
       navigate("/categories");
     } catch (error) {
       setError(error);
-      toast.error(error);
+      toast.error(error.message || "Login failed!");
     } finally {
       setLoading(false); 
     }
@@ -40,10 +40,11 @@ function Login() {
       <div className="login-header">
         <h2>AutoZoom</h2>
       </div>
-      <form onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleSubmit}>
         <div>
           <label>Username</label>
           <input
+          minLength={3}
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -53,6 +54,7 @@ function Login() {
         <div>
           <label>Password</label>
           <input
+          minLength={3}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -61,7 +63,7 @@ function Login() {
         </div>
         <button type="submit" className={loading ? "loading" : ""}>
           {loading ? (
-            <div className="spinner"></div>
+            "Logging in..."
           ) : (
             "Login"
           )}

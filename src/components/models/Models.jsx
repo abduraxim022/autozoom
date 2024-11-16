@@ -17,23 +17,25 @@ export default function Models() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteModelId, setDeleteModelId] = useState(null);
 
+
   const fetchModels = async () => {
     try {
       const response = await api.get("/models");
       setModels(response.data.data);
     } catch (error) {
-      console.error("Error fetching models:", error);
+      toast.error("Modellarni olishda xatolik yuz berdi.");
     } finally {
       setLoading(false);
     }
   };
+
 
   const fetchBrands = async () => {
     try {
       const response = await api.get("/brands");
       setBrands(response.data.data);
     } catch (error) {
-      console.error("Error fetching brands:", error);
+      toast.error("Brendlarni olishda xatolik yuz berdi.");
     }
   };
 
@@ -49,34 +51,26 @@ export default function Models() {
     setEditModelId(null);
   };
 
+ 
   const handleAddOrEditModel = async () => {
     if (!modelName || !selectedBrand) {
-      toast.error("Please fill in all fields.");
+      toast.warning("Please fill in all fields.");
       return;
     }
 
     const data = { name: modelName, brand_id: selectedBrand };
-
     try {
       if (editModelId) {
-        await api.put(`/models/${editModelId}`, data, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
-        toast.success("Model updated successfully!");
+        await api.put(`/models/${editModelId}`, data);
+        toast.success("Model muvaffaqiyatli tahrirlandi!");
       } else {
-        await api.post("/models", data, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
-        toast.success("Model added successfully!");
+        await api.post("/models", data);
+        toast.success("Yangi model qo'shildi!");
       }
       fetchModels();
       toggleModal();
     } catch (error) {
-      toast.error("Error with API request.");
+      toast.error("API so'rovda xatolik yuz berdi.");
     }
   };
 
@@ -94,16 +88,12 @@ export default function Models() {
 
   const handleDeleteModel = async () => {
     try {
-      await api.delete(`/models/${deleteModelId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-      });
-      toast.success("Model deleted successfully!");
+      await api.delete(`/models/${deleteModelId}`);
+      toast.success("Model muvaffaqiyatli o'chirildi!");
       fetchModels();
       setDeleteDialogOpen(false);
     } catch (error) {
-      toast.error("Error deleting model.");
+      toast.error("Modelni o'chirishda xatolik yuz berdi.");
     }
   };
 
@@ -116,16 +106,18 @@ export default function Models() {
       <table className="models-table">
         <thead>
           <tr>
-            <th>Name</th>
+            <th>№</th>
+            <th>Model Name</th>
             <th>Brand</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {models?.map((model) => (
+          {models?.map((model, index) => (
             <tr key={model.id}>
+              <td>{index + 1}</td>
               <td>{model.name}</td>
-              <td>{model?.brand_title}</td>
+              <td>{model.brand_title}</td>
               <td>
                 <IconButton onClick={() => handleEditClick(model)} color="primary">
                   <EditIcon />
@@ -145,7 +137,7 @@ export default function Models() {
             <h3>{editModelId ? "Edit Model" : "Add New Model"}</h3>
             <input
               type="text"
-              placeholder="Model Name"
+              placeholder="Model name"
               value={modelName}
               onChange={(e) => setModelName(e.target.value)}
             />
@@ -160,10 +152,12 @@ export default function Models() {
                 </option>
               ))}
             </select>
-            <button onClick={handleAddOrEditModel}>
-              {editModelId ? "Update" : "Add"}
-            </button>
-            <button onClick={toggleModal}>Cancel</button>
+            <div className="models-muibuttons">
+            <Button variant="contained" color="primary" onClick={toggleModal}>Cancel</Button>
+            <Button variant="contained" color="success" onClick={handleAddOrEditModel}>
+              {editModelId ? "Update" : "Add Model"}
+            </Button>
+            </div>
           </div>
         </div>
       )}
@@ -172,12 +166,12 @@ export default function Models() {
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this model?
+          Are you sure you want to delete this category?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteModel} color="secondary">
+          <Button onClick={() => setDeleteDialogOpen(false)} variant="contained" color="primary">Cancel</Button>
+          <Button onClick={handleDeleteModel}  variant="contained" color="error">
             Delete
           </Button>
         </DialogActions>

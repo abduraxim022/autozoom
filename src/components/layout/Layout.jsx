@@ -16,7 +16,6 @@ const Layout = () => {
       <Sidebar isOpen={isSidebarOpen} onToggle={handleToggleSidebar} />
       <div
         className="layout-content"
-        
       >
         <Navbar isSidebarOpen={isSidebarOpen} />
         <div className="navbar-spacing">

@@ -1,64 +1,20 @@
 .sidebar {
-    
-    background-color: #0a1929;
-    color: #fff;
-    height: 100vh;
-    transition: width 0.3s ease;
-    overflow: hidden;
-  
-    &.collapsed {
-      width: 60px;
-    }
-  
-    .sidebar-toggle-button {
-      color: #ffffff;
-      margin: 10px;
-    }
-  
-    .sidebar-menu-list {
-      padding: 0;
-    }
-  
-    .sidebar-menu-item {
-      display: flex;
-      align-items: center;
-  
-      .sidebar-menu-button {
-        width: 100%;
-        text-align: left;
-        transition: background-color 0.2s ease;
-  
-        &.active {
-          background-color: #1e88e5;
-          color: #ffffff;
-        }
-  
-        &:hover {
-          background-color: #1565c0;
-          color: #ffffff;
-        }
-  
-        .sidebar-menu-icon {
-          color: #ffffff;
-        }
-      }
-  
-      .sidebar-menu-text {
-        color: #b0bec5;
-      }
-    }
-  }
-
-
-.sidebar {
-  width: 240px;
-  background-color: #333;
+  width: 200px;
+  transition: width 0.3s ease;
+  background-color: #0a1929;
   color: #fff;
-  transition: width 0.3s;
-  overflow: hidden;
 
   &.collapsed {
-    width: 80px;
+    width: 60px;
+  }
+
+  .sidebar-toggle-button {
+    color: #ffffff;
+    margin: 10px;
+  }
+
+  .sidebar-menu-list {
+    padding: 0;
   }
 }
 
@@ -73,26 +29,22 @@
 .sidebar-menu-button {
   color: #ccc;
 
-  &:hover {
-    background-color: #444;
-  }
-
-
   &.active {
-    background-color: #08124b; 
+    background-color: #0d24a7;
     color: #fff;
 
     .sidebar-menu-icon,
     .sidebar-menu-text {
-      color: #ffcc00; 
+      color: #ffcc00;
     }
   }
 }
 
 .sidebar-menu-icon {
-  min-width: 40px;
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
-.sidebar-menu-text {
-  font-size: 16px;
-}
+

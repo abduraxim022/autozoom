@@ -1,13 +1,25 @@
-*{
-    margin: 0px;
-    padding: 0px;
-    box-sizing: border-box;
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+  font-family: "Geist", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
-.container{
-    width: 100%;
-    max-width: 1440px;
-  
-    margin: 0 auto;
+.container {
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
+}
 
+button {
+  font-weight: bold;
+}
+
+td {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.479);
 }

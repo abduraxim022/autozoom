@@ -6,11 +6,16 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
-import SettingsIcon from "@mui/icons-material/Settings";
 import StoreIcon from "@mui/icons-material/Store";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import LocationCityIcon from "@mui/icons-material/LocationCity";
 import MenuIcon from "@mui/icons-material/Menu";
+import { BiCategoryAlt } from "react-icons/bi";
+import { CgAdidas } from "react-icons/cg";
+import { IoLocationOutline } from "react-icons/io5";
+import { PiCity } from "react-icons/pi";
+import { FcElectricity } from "react-icons/fc";
+import { IoCarSportOutline } from "react-icons/io5";
 import "./sidebar.scss";
 
 const Sidebar = ({ isOpen, onToggle }) => {
@@ -18,12 +23,12 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const location = useLocation();
 
   const menuItems = [
-    { text: "Categories", icon: <SettingsIcon />, path: "/categories" },
-    { text: "Brands", icon: <StoreIcon />, path: "/brands" },
-    { text: "Models", icon: <DirectionsCarIcon />, path: "/models" },
-    { text: "Locations", icon: <LocationCityIcon />, path: "/locations" },
-    { text: "Cities", icon: <LocationCityIcon />, path: "/cities" },
-    { text: "Cars", icon: <DirectionsCarIcon />, path: "/cars" },
+    { text: "Categories", icon: <BiCategoryAlt/>, path: "/categories" },
+    { text: "Brands", icon: <CgAdidas/>, path: "/brands" },
+    { text: "Models", icon: <FcElectricity/>, path: "/models" },
+    { text: "Locations", icon: <IoLocationOutline/>, path: "/locations" },
+    { text: "Cities", icon: <PiCity/>, path: "/cities" },
+    { text: "Cars", icon: <IoCarSportOutline/>, path: "/cars" },
   ];
 
   return (
