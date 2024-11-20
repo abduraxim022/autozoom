@@ -1,151 +1,185 @@
 .brands-container {
+  padding: 20px;
+  background-color: #f0efef97;
+  border: 1px solid #ddd;
+  border-radius: 10px;
   
-    padding: 20px;
-  
-    .add-brand-button {
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    &:hover {
-        background-color: #2d6d30;
-      }
-    }
-  
-    .brands-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-  
-      th {
-        background-color: #f4f4f4;
-        padding: 10px;
-        text-align: left;
-      }
-  
-      td {
-        padding: 10px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-  
-      tbody tr:nth-child(odd) {
-        background-color: #f0f0f0; 
-      }
-  
-      tbody tr:hover {
-        background-color: #e0e0e0;
-      }
-  
-      img {
-        border-radius: 5px;
-      }
-  
-      .MuiIconButton-root {
-        margin: 0 5px;
-      }
-    }
-  
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  
-    .modal-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      width: 400px;
- 
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      text-align: center;
-  
-      h3 {
-        margin-bottom: 15px;
-      }
-  
-      input[type="text"] {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
+}
 
-    }
+.add-brand-button {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #2d6d30;
+    transform: scale(1.05);
   }
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+}
+ tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.brands-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  th {
+    background-color: #f4f4f4;
+    padding: 10px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+
   }
-  
-  
-  .image-upload-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
+
+  td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
   }
-  
-  .upload-image {
-    width: 100px;
-    height: 100px;
-    background-color: gray;
-    border: 2px dashed #ccc;
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
+
+  tbody tr:nth-child(odd) {
+    background-color: #f0f0f0;
   }
-  
-  .upload-image input {
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-    &:hover{
-      border-color: blue;
-    }
+
+  tbody tr:hover {
+    background-color: #e0e0e0;
   }
-  
-  .image-preview {
-    width: 100%;
-    height: 100%;
+
+  img {
+    border-radius: 5px;
+    width: 60px;
+    height: 40px;
     object-fit: cover;
+    border: 1px solid #ccc;
   }
-  
-  .upload-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    color: white;
-    height: 100%;
+
+  .MuiIconButton-root {
+    margin: 0 5px;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+
+  h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+    text-align: left;
+  }
+
+  input[type="text"] {
     width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
   }
-  
-.brands-muibuttons{
+}
+
+.image-upload-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.upload-image {
+  width: 100px;
+  height: 100px;
+  background-color: #f9f9f9;
+  border: 2px dashed #ccc;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s;
+
+  &:hover {
+    border-color: blue;
+  }
+}
+
+.upload-image input {
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.upload-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #888;
+  width: 100%;
+  height: 100%;
+}
+
+.brands-muibuttons {
   width: 100%;
   display: flex;
   justify-content: flex-end;
   gap: 15px;
+}
+
+.ctginput {
+  margin-top: 10px;
+  
+  outline: none;
+}
+
+.brands-table td .MuiIconButton-root {
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }

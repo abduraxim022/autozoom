@@ -15,6 +15,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import "./brands.scss";
 import { FiImage } from "react-icons/fi";
+import { Input, Space } from "antd";
+import { SearchOutlined } from "@mui/icons-material";
 
 export default function Brands() {
   const [brands, setBrands] = useState([]);
@@ -36,11 +38,11 @@ export default function Brands() {
       if (Array.isArray(response.data?.data)) {
         setBrands(response.data?.data);
       } else {
-        toast.error("Brendlar ma'lumotlari noto'g'ri formatda.");
+        toast.error("The brand data is in the wrong format");
       }
       setLoading(false);
     } catch (error) {
-      toast.error("Brendlarni olishda xatolik yuz berdi.");
+      toast.error("There was an error while fetching the brands");
       setLoading(false);
     }
   };
@@ -87,14 +89,14 @@ export default function Brands() {
       }
 
       if (response.status === 200 || response.status === 201) {
-        toast.success(editMode ? "Brend tahrirlandi!" : "Brend qo'shildi!");
+        toast.success(editMode ? "The brand has been edited" : "Brand added");
         fetchBrands();
         toggleModal();
       } else {
-        toast.error("Brendni saqlashda xatolik yuz berdi.");
+        toast.error("There was an error saving the brand.");
       }
     } catch (error) {
-      toast.error("API so'rovda xatolik yuz berdi.");
+      toast.error("There was an error in the API request");
     }
   };
 
@@ -123,11 +125,11 @@ export default function Brands() {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
       });
-      toast.success("Brend o'chirildi!");
+      toast.success("Brand deleted successfully");
       fetchBrands();
       handleCloseAlert();
     } catch (error) {
-      toast.error("Brendni o'chirishda xatolik yuz berdi.");
+      toast.error("There was an error while deleting the brand.");
     }
   };
 
@@ -153,12 +155,22 @@ export default function Brands() {
 
   return (
     <div className="brands-container">
-      <div>
-        <input type="text" onChange={(e)=> setSearchQuery(e.target.value)} />
-      </div>
-      <button onClick={toggleModal} className="add-brand-button">
+      <div className="ctg">
+      <Space.Compact size="large">
+      <Input
+        className="ctginput" 
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search"
+        prefix={<SearchOutlined />}  
+        size="large"  
+      />
+    </Space.Compact>
+        <button onClick={toggleModal} className="add-brand-button">
         Add Brand
       </button>
+      </div>
+     
 
       <table className="brands-table">
     <thead>
@@ -264,7 +276,7 @@ export default function Brands() {
                 color="success"
                 onClick={handleAddOrEditBrand}
               >
-                {editMode ? "Save" : "Add Brand"}
+                {editMode ? "Update" : "Add Brand"}
               </Button>
             </div>
           </div>

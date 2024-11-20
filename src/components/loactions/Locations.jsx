@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
 import { FiImage } from "react-icons/fi";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import './locations.scss'
+import "./locations.scss";
+import { SearchOutlined } from "@mui/icons-material";
+import { Input, Space } from "antd";
 
 export default function Locations() {
   const [locations, setLocations] = useState([]);
@@ -17,8 +27,11 @@ export default function Locations() {
   const [imagePreview, setImagePreview] = useState(null);
   const [locationImage, setLocationImage] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const imageBaseUrl = "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
+  const imageBaseUrl =
+    "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
 
   const fetchLocations = async () => {
     try {
@@ -27,6 +40,8 @@ export default function Locations() {
       
     } catch (error) {
       toast.error("Error fetching locations");
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -71,8 +86,8 @@ export default function Locations() {
         await api.post("/locations", formData);
         toast.success("Location added successfully");
       }
-      fetchLocations(); 
-      toggleModal();  
+      fetchLocations();
+      toggleModal();
     } catch (error) {
       toast.error("Error adding or updating location");
     }
@@ -82,7 +97,7 @@ export default function Locations() {
     setEditMode(true);
     setLocationName(location.name);
     setLocationDescription(location.text);
-    setLocationImage(null);  
+    setLocationImage(null);
     setImagePreview(`${imageBaseUrl}${location.image_src}`);
     setSelectedLocationId(location.id);
     setIsModalOpen(true);
@@ -92,8 +107,8 @@ export default function Locations() {
     try {
       await api.delete(`/locations/${selectedLocationId}`);
       toast.success("Location deleted successfully");
-      setOpenDeleteDialog(false); 
-      fetchLocations();  
+      setOpenDeleteDialog(false);
+      fetchLocations();
     } catch (error) {
       toast.error("Error deleting location");
     }
@@ -111,47 +126,95 @@ export default function Locations() {
   useEffect(() => {
     fetchLocations();
   }, []);
+  const filteredLocation = locations.filter((location) =>
+    location.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="locations-container">
+      <div className="ctg">
+      <Space.Compact size="large">
+      <Input
+      variant="outlined"
+        className="ctginput" 
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search"
+        prefix={<SearchOutlined />}  
+        size="large"  
+      />
+    </Space.Compact>
       <button className="add-location-button" onClick={toggleModal}>
         Add Location
       </button>
+      </div>
+
 
       <table className="locations-table">
-        <thead>
-          <tr>
-            <th>Location Name</th>
-            <th>Text</th>
-            <th>Image</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {locations.map((location) => (
-            <tr key={location.id}>
-              <td>{location.name}</td>
-              <td>{location.text}</td>
-              <td>
-                <img
-                  src={`${imageBaseUrl}${location.image_src}`}
-                  alt={location.name}
-                  width="100"
-                  height="70"
-                />
-              </td>
-              <td>
-                <IconButton onClick={() => handleEditLocation(location)}>
-                  <EditIcon color="primary" />
-                </IconButton>
-                <IconButton onClick={() => handleDeleteDialogOpen(location.id)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+  <thead>
+    <tr>
+      <th>№</th>
+      <th>Location Name</th>
+      <th>Text</th>
+      <th>Image</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {loading ? (
+      [...Array(5)].map((_, i) => (
+        <tr key={i}>
+          <td>
+            <Skeleton variant="text" width="20px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="150px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="200px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="rectangular" width={100} height={70} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="80px" height={40} />
+          </td>
+        </tr>
+      ))
+    ) : filteredLocation.length > 0 ? (
+      filteredLocation.map((location, index) => (
+        <tr key={location.id}>
+          <td>{index + 1}</td>
+          <td>{location.name}</td>
+          <td>{location.text}</td>
+          <td>
+            <img
+              src={`${imageBaseUrl}${location.image_src}`}
+              alt={location.name}
+              width="100"
+              height="70"
+            />
+          </td>
+          <td>
+            <IconButton onClick={() => handleEditLocation(location)}>
+              <EditIcon color="primary" />
+            </IconButton>
+            <IconButton onClick={() => handleDeleteDialogOpen(location.id)}>
+              <DeleteIcon color="error" />
+            </IconButton>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="5" style={{ textAlign: "center", padding: "10px" }}>
+          No locations found
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
 
       {isModalOpen && (
         <div className="modal-overlay">
@@ -198,12 +261,12 @@ export default function Locations() {
                 color="success"
                 onClick={handleAddOrEditLocation}
               >
-                {editMode ? "Save" : "Add Location"}
+                {editMode ? "Update" : "Add Location"}
               </Button>
             </div>
           </div>
         </div>
-        )}
+      )}
 
       <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
         <DialogTitle>Confirm Delete</DialogTitle>
@@ -211,10 +274,18 @@ export default function Locations() {
           <p>Are you sure you want to delete this location?</p>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteDialogClose} variant="contained" color="primary">
+          <Button
+            onClick={handleDeleteDialogClose}
+            variant="contained"
+            color="primary"
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteLocation} variant="contained" color="error">
+          <Button
+            onClick={handleDeleteLocation}
+            variant="contained"
+            color="error"
+          >
             Delete
           </Button>
         </DialogActions>

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api/axiosconfig";
 import "./cars.scss";
-import { IconButton } from "@mui/material";
+import { Button, ButtonBase, IconButton, Skeleton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
-import { FiImage } from "react-icons/fi";
+import { Input, Space, Switch } from "antd";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { Image, Upload } from "antd";
+import { CiSearch } from "react-icons/ci";
 
 export default function Cars() {
-  const imageBaseUrl =
-    "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
-
   const [data, setData] = useState([]);
   const [brandId, setBrandId] = useState([]);
   const [modelId, setModelId] = useState([]);
@@ -19,8 +19,7 @@ export default function Cars() {
   const [year, setYear] = useState("");
   const [seconds, setSeconds] = useState("");
   const [categoryId, setCategoryId] = useState([]);
-  const [images, setImages] = useState([]);
-  const [maxSpeed, setMaxSpeed] = useState("120");
+  const [maxSpeed, setMaxSpeed] = useState("");
   const [maxPeople, setMaxPeople] = useState("");
   const [transmission, setTransmission] = useState("");
   const [driveSide, setDriveSide] = useState("");
@@ -35,8 +34,6 @@ export default function Cars() {
   const [inclusive, setInclusive] = useState(false);
   const [motor, setMotor] = useState("");
   const [petrol, setPetrol] = useState("");
-  const [cover, setCover] = useState([]);
-  const [images1, setImages1] = useState([]);
   const [brandName, setBrandName] = useState("");
   const [modelname, setModelname] = useState("");
   const [cityname, setCityName] = useState("");
@@ -44,17 +41,63 @@ export default function Cars() {
   const [locationname, setLocationName] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [imagePreview, setImagePreview] = useState([]);
   const [editingCarId, setEditingCarId] = useState(null);
+  const [coverFile, setCoverFile] = useState([]);
+  const [mainFile, setMainFile] = useState([]);
+  const [carFile, setCarFile] = useState([]);
+  const [previewImage, setPreviewImage] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [fileList, setFileList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [imageTitle, setImageTitle] = useState("");
 
+
+  const handlePreview = async (file) => {
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setPreviewImage(file.url || file.preview);
+    setPreviewOpen(true);
+  };
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+  const handleFileChange = (setter) => ({ fileList }) => {
+    if (fileList.length > 1) {
+      toast.error("You can only upload one image for this field.");
+      return;
+    }
+    
+    setter(fileList);
+    if (fileList.length > 0) {
+      const uploadedFile = fileList[0];
+      setImageTitle(uploadedFile.name); 
+    }
+  };
   const fetchCars = async () => {
     try {
       const response = await api.get("/cars");
       setData(response?.data?.data);
-      console.log(response.data.data);
-      
     } catch (error) {
       toast.error("Error fetching cars data");
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -104,38 +147,36 @@ export default function Cars() {
     formData.append("price_in_usd_sale", priceInUsdSale);
     formData.append("location_id", locationname);
     formData.append("inclusive", inclusive);
-    formData.append("cover", cover);
-    formData.append("images", images);
-    formData.append("images", images1);
+    if (coverFile[0]) formData.append("cover", coverFile[0].originFileObj);
+    if (mainFile[0]) formData.append("images", mainFile[0].originFileObj);
+    if (carFile[0]) formData.append("images", carFile[0].originFileObj);
 
     try {
-      let response;
-      if (editMode && editingCarId) {
-        response = await api.put(`/cars/${editingCarId}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
-      } else {
-        response = await api.post("/cars", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
-        });
-      }
+      const response = editMode
+        ? await api.put(`/cars/${editingCarId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          })
+        : await api.post("/cars", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+          });
+
       if (response.status === 200 || response.status === 201) {
         toast.success(
-          editMode ? "Car Successfully Edited" : "Car Added Successfully"
+          editMode ? "Car successfully edited" : "Car added successfully"
         );
         fetchCars();
         toggleModal();
       } else {
-        toast.error("Something went wrong adding car");
+        toast.error("Something went wrong adding/editing the car.");
       }
     } catch (error) {
-      toast.error("Error on API");
+      toast.error("Error occurred while saving car data.");
     }
   };
 
@@ -143,11 +184,9 @@ export default function Cars() {
     deleteCarsWithHand(id);
   };
 
-  const handleEditCars = (cars,e) => {
-  
+  const handleEditCars = (cars, e) => {
     setEditMode(true);
     setEditingCarId(cars?.id);
-    console.log(cars.id);
     setBrandName(cars?.brand?.id);
     setModelname(cars?.model?.id);
     setCityName(cars?.city?.id);
@@ -171,26 +210,19 @@ export default function Cars() {
     setLocationName(cars?.location_id);
     setInclusive(cars?.inclusive);
     setIsModalOpen(true);
-    setCover(`${imageBaseUrl}/${cars?.car_images.image}`);
-    setImages1([`${imageBaseUrl}/${cars?.car_images.image}`]);
-    setImagePreview(`${imageBaseUrl}/${cars?.car_images.image}`);
-    
+    setCoverFile([]);
+    setMainFile([]);
+    setCarFile([]);
+    setPreviewOpen(true);
   };
-  
-
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImages(file);
-
+  const getBase64 = (file) =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
       reader.readAsDataURL(file);
-    }
-  };
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -203,7 +235,7 @@ export default function Cars() {
     setYear("");
     setSeconds("");
     setCategoryName("");
-    setMaxSpeed("120");
+    setMaxSpeed("");
     setMaxPeople("");
     setTransmission("");
     setMotor("");
@@ -218,10 +250,12 @@ export default function Cars() {
     setPriceInUsdSale("");
     setLocationName("");
     setInclusive(false);
-    setCover(null);
-    setImages([]);
-    setImages1([]);
-    setImagePreview(null);
+    setCoverFile([]);
+    setMainFile([]);
+    setCarFile([]);
+    setPreviewOpen(false);
+    
+    
   };
 
   const deleteCarsWithHand = async (id) => {
@@ -238,46 +272,96 @@ export default function Cars() {
     fetchCars();
     fetchSelectOptions();
   }, []);
+  const filteredCars = data.filter((cars) =>
+    cars.brand.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div>
-      <button onClick={toggleModal} className="add-car-button">
+    <div className="cars-container">
+      <div className="ctg">
+      <Space.Compact size="large">
+      <Input
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search"
+        prefix={<SearchOutlined />}
+        size="large"  
+      />
+    </Space.Compact>
+        <button onClick={toggleModal} className="add-car-button">
         Add Car
       </button>
-      <table className="brands-table">
-        <thead>
-          <tr>
-            <th>№</th>
-            <th>Brend Nomi</th>
-            <th>Model</th>
-            <th>Color</th>
-            <th>City</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.map((cars, index) => (
-            <tr key={cars.id}>
-              <td>{index + 1}</td>
-              <td>{cars?.brand?.title}</td>
-              <td>{cars?.model?.name}</td>
-              <td>{cars?.color}</td>
-              <td>{cars?.city?.name}</td>
-              <td>
-                <IconButton onClick={() => handleEditCars(cars)}>
-                  <EditIcon color="primary" />
-                </IconButton>
-                <IconButton onClick={() => handleDeleteCars(cars?.id)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      </div>
+   
+      <table className="cars-table">
+    <thead>
+    <tr>
+      <th>№</th>
+      <th>Brend Nomi</th>
+      <th>Model</th>
+      <th>Color</th>
+      <th>City</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {loading ? (
+      
+      [...Array(5)].map((_, index) => (
+        <tr key={index}>
+          <td>
+            <Skeleton variant="text" width="20px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="100px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="100px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="80px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="100px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="80px" height={40} />
+          </td>
+        </tr>
+      ))
+    ) : filteredCars.length > 0 ? (
+     
+      filteredCars.map((cars, index) => (
+        <tr key={cars.id}>
+          <td>{index + 1}</td>
+          <td>{cars?.brand?.title}</td>
+          <td>{cars?.model?.name}</td>
+          <td>{cars?.color}</td>
+          <td>{cars?.city?.name}</td>
+          <td>
+            <IconButton onClick={() => handleEditCars(cars)}>
+              <EditIcon color="primary" />
+            </IconButton>
+            <IconButton onClick={() => handleDeleteCars(cars?.id)}>
+              <DeleteIcon color="error" />
+            </IconButton>
+          </td>
+        </tr>
+      ))
+    ) : (
+      <tr>
+        <td colSpan="6" style={{ textAlign: "center", padding: "10px" }}>
+          No cars found
+        </td>
+      </tr>
+    )}
+  </tbody>
+</table>
+
       {isModalOpen && (
-        <div className="modal">
-          <form onSubmit={Carpost}>
+        <div className="modal-overlay">
+          
+          <form onSubmit={Carpost} className="modal-content">
             <select
               name="brand_id"
               value={brandName}
@@ -314,6 +398,30 @@ export default function Cars() {
                 </option>
               ))}
             </select>
+            <select
+              name="category_id"
+              value={categoryname}
+              onChange={(e) => setCategoryName(e.target.value)}
+            >
+              <option value="">Select Category</option>
+              {categoryId?.map((category) => (
+                <option key={category?.id} value={category?.id}>
+                  {category?.name_en}
+                </option>
+              ))}
+            </select>
+            <select
+              name="location_id"
+              value={locationname}
+              onChange={(e) => setLocationName(e.target.value)}
+            >
+              <option value="">Select Location</option>
+              {locationId?.map((loc) => (
+                <option key={loc?.id} value={loc?.id}>
+                  {loc?.name}
+                </option>
+              ))}
+            </select>
             <input
               placeholder="Color"
               type="text"
@@ -327,25 +435,14 @@ export default function Cars() {
               name="year"
               value={year}
               onChange={(e) => setYear(e.target.value)}
-            />
+            />  
             <input
               type="text"
               name="seconds"
+              placeholder="seconds"
               value={seconds}
               onChange={(e) => setSeconds(e.target.value)}
             />
-            <select
-              name="category_id"
-              value={categoryname}
-              onChange={(e) => setCategoryName(e.target.value)}
-            >
-              <option value="">Select Category</option>
-              {categoryId?.map((category) => (
-                <option key={category?.id} value={category?.id}>
-                  {category?.name_en}
-                </option>
-              ))}
-            </select>
             <input
               placeholder="Max Speed"
               type="text"
@@ -437,41 +534,70 @@ export default function Cars() {
               value={priceInUsdSale}
               onChange={(e) => setPriceInUsdSale(e.target.value)}
             />
-            <select
-              name="location_id"
-              value={locationname}
-              onChange={(e) => setLocationName(e.target.value)}
-            >
-              <option value="">Select Location</option>
-              {locationId?.map((loc) => (
-                <option key={loc?.id} value={loc?.id}>
-                  {loc?.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="checkbox"
+            <Switch className="switch"
               name="inclusive"
               checked={inclusive}
-              onChange={(e) => setInclusive(e.target.checked)}
+              onChange={(checked) => setInclusive(checked)}
             />
-            <div className="image-upload-container">
-              <div className="upload-image">
-                  <div className="upload-placeholder">
-                    <FiImage />
-                  </div>
-                <input
-                  type="file"
-                  onChange={handleImageChange}
-                />
-              </div>
-            </div>
-            <button type="submit" className="ok">
-              {editMode ? "Edit Car" : "Add Car"}
-            </button>
-            <button type="button" onClick={toggleModal} className="cancel">
+         <div>
+        <h3>Upload Cover Image</h3>
+        <Upload
+        maxCount={1}
+          listType="picture-card"
+          fileList={coverFile}
+          onPreview={handlePreview}
+          onChange={handleFileChange(setCoverFile)}
+        >
+          {coverFile.length < 1 && uploadButton}
+        </Upload>
+      </div>
+      <div>
+        <h3>Upload Main Image</h3>
+        <Upload
+        maxCount={1}
+          listType="picture-card"
+          fileList={mainFile}
+          onPreview={handlePreview}
+          onChange={handleFileChange(setMainFile)}
+        >
+          {mainFile.length < 1 && uploadButton}
+        </Upload>
+      </div>
+      <div>
+        <h3>Upload Car Image</h3>
+        <Upload
+        maxCount={1}
+          listType="picture-card"
+          fileList={carFile}
+          onPreview={handlePreview}
+          onChange={handleFileChange(setCarFile)}
+        >
+          {carFile.length < 1 && uploadButton}
+        </Upload>
+      </div>
+            {previewImage && (
+              <Image
+                wrapperStyle={{
+                  display: "none",
+                }}
+                preview={{
+                  visible: previewOpen,
+                  onVisibleChange: (visible) => setPreviewOpen(visible),
+                  afterOpenChange: (visible) => !visible && setPreviewImage(""),
+                }}
+                src={previewImage}
+              />
+            )}
+            <div className="brands-muibuttons">
+            <Button type="button" variant="contained" color="primary" onClick={toggleModal} className="cancel">
               Cancel
-            </button>
+            </Button>
+            <Button type="submit"   variant="contained"
+                color="success"  className="ok">
+              {editMode ? "Update Car" : "Add Car"}
+            </Button>
+
+            </div>
           </form>
         </div>
       )}

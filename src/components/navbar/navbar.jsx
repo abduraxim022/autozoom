@@ -1,43 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './navbar.scss';
-import { IconButton, Menu, MenuItem } from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Dropdown, Menu, Button } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
 
 const Navbar = ({ isOpen }) => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken'); 
-    navigate('/'); 
+    localStorage.removeItem('authToken');
+    navigate('/');
   };
+
+  const menu = (
+    <Menu>
+      <Menu.Item key="logout" onClick={handleLogout}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <div className={`navbar ${isOpen ? '' : 'collapsed'}`}>
       <div className="admin-section">
-        <h3>Admin</h3>
-        <IconButton
-          color="inherit"
-          onClick={handleMenuOpen}
-        >
-          <AccountCircleIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
-        </Menu>
+        <Dropdown overlay={menu} trigger={['hover']} placement="bottomRight">
+          <Button icon={<UserOutlined />} type="text">
+            <span className="admin-text">Admin</span>
+          </Button>
+        </Dropdown>
       </div>
     </div>
   );

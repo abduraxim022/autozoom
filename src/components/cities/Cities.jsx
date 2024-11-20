@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
 import { FiImage } from "react-icons/fi";
 import api from "../../api/axiosconfig";
 import { toast } from "react-toastify";
 import "./cities.scss";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Input, Space } from "antd";
+import { SearchOutlined } from "@mui/icons-material";
 
 export default function Cities() {
   const [cities, setCities] = useState([]);
@@ -19,6 +29,7 @@ export default function Cities() {
   const [selectedCityId, setSelectedCityId] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [cityToDelete, setCityToDelete] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchCities = async () => {
     setLoading(true);
@@ -37,7 +48,8 @@ export default function Cities() {
     fetchCities();
   }, []);
 
-  const ImageBaseUrl = "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
+  const ImageBaseUrl =
+    "https://autoapi.dezinfeksiyatashkent.uz/api/uploads/images/";
 
   const handleOpenModal = (city = null) => {
     setIsModalOpen(true);
@@ -126,58 +138,114 @@ export default function Cities() {
       handleDeleteDialogClose();
     }
   };
+  const filteredCities = cities.filter((city) =>
+    city.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="cities-container">
-      <button  className="add-location-button"
-        onClick={() => handleOpenModal()}
-      >
+      <div className="ctg">
+      <Space.Compact size="large">
+      <Input
+        className="ctginput" 
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search"
+        prefix={<SearchOutlined />}  
+        size="large"  
+      />
+    </Space.Compact>
+        <button className="add-location-button" onClick={() => handleOpenModal()}>
         Add City
       </button>
+      </div>
+ 
 
       {loading ? (
-        <div className="loading-container">
-        </div>
+  <table className="cities-table">
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>City Name</th>
+        <th>Description</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {[...Array(5)].map((_, index) => (
+        <tr key={index}>
+          <td>
+            <Skeleton variant="text" width="20px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="150px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="200px" height={40} />
+          </td>
+          <td>
+            <Skeleton variant="rectangular" width={100} height={70} />
+          </td>
+          <td>
+            <Skeleton variant="text" width="80px" height={40} />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <table className="cities-table">
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>City Name</th>
+        <th>Description</th>
+        <th>Image</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredCities.length > 0 ? (
+        filteredCities.map((city, index) => (
+          <tr key={city.id}>
+            <td>{index + 1}</td>
+            <td>{city.name}</td>
+            <td>{city.text}</td>
+            <td>
+              <img
+                src={`${ImageBaseUrl}/${city.image_src}`}
+                alt={city.name}
+                className="city-image"
+                style={{
+                  width: "100px",
+                  height: "70px",
+                  objectFit: "cover",
+                }}
+              />
+            </td>
+            <td>
+              <IconButton onClick={() => handleOpenModal(city)}>
+                <EditIcon variant="contained" color="primary" />
+              </IconButton>
+              <IconButton onClick={() => handleOpenDeleteDialog(city.id)}>
+                <DeleteIcon variant="contained" color="error" />
+              </IconButton>
+            </td>
+          </tr>
+        ))
       ) : (
-        <table className="cities-table">
-          <thead>
-            <tr>
-              <th>City Name</th>
-              <th>Description</th>
-              <th>Image</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cities.map((city) => (
-              <tr key={city.id}>
-                <td>{city.name}</td>
-                <td>{city.text}</td>
-                <td>
-                  <img
-                    src={`${ImageBaseUrl}/${city.image_src}`}
-                    alt={city.name}
-                    className="city-image"
-                    style={{
-                      width: "100px",
-                      height: "70px",
-                      objectFit: "cover",
-                    }}
-                  />
-                </td>
-                <td>
-                  <IconButton onClick={() => handleOpenModal(city)}> 
-                    <EditIcon variant="contained" color="primary"/>
-                  </IconButton>
-                  <IconButton onClick={()=> handleOpenDeleteDialog(city.id)}>
-                    <DeleteIcon variant="contained" color="error"/>
-                  </IconButton>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <tr>
+          <td colSpan="5" style={{ textAlign: "center", padding: "10px" }}>
+            No cities found
+          </td>
+        </tr>
       )}
+    </tbody>
+  </table>
+)}
+
 
       {isModalOpen && (
         <div className="modal-overlay">
@@ -216,7 +284,11 @@ export default function Cities() {
               </div>
             </div>
             <div className="cities-muibuttons">
-              <Button variant="contained" color="primary" onClick={handleCloseModal}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCloseModal}
+              >
                 Cancel
               </Button>
               <Button
@@ -224,7 +296,7 @@ export default function Cities() {
                 color="success"
                 onClick={handleAddOrEditCity}
               >
-                {editMode ? "Save" : "Add City"}
+                {editMode ? "Update" : "Add City"}
               </Button>
             </div>
           </div>

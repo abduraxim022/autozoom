@@ -15,6 +15,9 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import "./categories.scss";
 import { FiImage } from "react-icons/fi";
+import { Input, Space } from "antd";
+import { SearchOutlined } from "@mui/icons-material";
+
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -37,7 +40,7 @@ export default function Categories() {
       const response = await api.get("/categories");
       setCategories(response.data.data);
     } catch (error) {
-      toast.error("Kategoriyalarni olishda xatolik yuz berdi.");
+      toast.error("An error occurred while fetching categories.");
     } finally {
       setLoading(false);
     }
@@ -84,15 +87,15 @@ export default function Categories() {
     try {
       if (editCategoryId) {
         await api.put(`/categories/${editCategoryId}`, formData);
-        toast.success("Kategoriya muvaffaqiyatli yangilandi!");
+        toast.success("Category successfully updated!");
       } else {
         await api.post("/categories", formData);
-        toast.success("Kategoriya muvaffaqiyatli qo'shildi!");
+        toast.success("Category successfully added!");
       }
       fetchCategories();
       toggleModal();
     } catch (error) {
-      toast.error("Kategoriyani saqlashda xatolik yuz berdi.");
+      toast.error("An error occurred while fetching categories..");
     }
   };
 
@@ -112,11 +115,11 @@ export default function Categories() {
   const handleDeleteCategory = async () => {
     try {
       await api.delete(`/categories/${deleteCategoryId}`);
-      toast.success("Kategoriya muvaffaqiyatli o'chirildi!");
+      toast.success("The category was successfully deleted");
       fetchCategories();
       setDeleteDialogOpen(false);
     } catch (error) {
-      toast.error("Kategoriyani o'chirishda xatolik yuz berdi.");
+      toast.error("There was an error while deleting the category.");
     }
   };
 
@@ -127,12 +130,23 @@ export default function Categories() {
 
   return (
     <div className="categories-container">
-       <div>
-        <input type="text" onChange={(e)=> setSearchQuery(e.target.value)} />
-      </div>
-      <button onClick={toggleModal} className="add-category-button">
+       <div className="ctg">
+       <Space.Compact size="large">
+      <Input
+        className="ctginput"
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search"
+        prefix={<SearchOutlined />}
+        size="large"
+      />
+    </Space.Compact>
+        <button onClick={toggleModal} className="add-category-button">
        Add Category
       </button>
+      </div>
+    
       <table className="categories-table">
   <thead>
     <tr>
